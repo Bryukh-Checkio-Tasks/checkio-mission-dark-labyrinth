@@ -1,41 +1,79 @@
 <p>
-    <i>( Describe task in general )</i>
+    Do you remember <a href="">Open Labyrinth</a>?
+    Now you inside the Dark Labyrinth and don't see the full map.
+    But you have flashlight and all passages in the Labyrinth are directed along South-North and
+    East-West lines. You don't know your position and where is the exit.
+    And hurry - you can not run forever.
 </p>
 
 <p>
-    Sum two passed ints
+    This is a "multicall" mission and your function will be called until you in maze and have moves.
+    For each iteration you see a part of the labyrinth in four directions. You can
+    see passages and where they have crossings and turns. And you will see the exit if it will be
+    in visible zone. Visible zone are represented as a grid as a tuple of strings,
+    where
+    <strong>
+        "X" is a wall, "." is a passage cell, "?" is unknown, "P" is player and "E" is the exit.
+    </strong>
+    Grid are represented as 2D rectangular array. The size is related to visible zone size.
 </p>
+<p>
+    For each iteration your function should return one or several actions as a string with
+    directions.
+    Actions are described as directions: "N" - North, "S" - South, "W" - West and "E" - East.
+    So the string "NWS" describes a sequence of three moves.
+    Don't move in a wall (there are weird slime on the walls).
+    And you have ??? moves (not iterations).
+    You can use global variables between iterations.
+</p>
+
 
 <p style="text-align: center;">
-    <img class="for_info_only" title="example" src="{{MEDIA}}example.png" alt="example" width="392px"/>
-    <img class="for_editor_only" title="example" src="{{MEDIA}}example.png" alt="example" width="380px"/>
+    <img class="for_info_only" title="example" src="{{MEDIA}}example.svg" alt="example"
+         width="392px"/>
+    <img class="for_editor_only" title="example" src="{{MEDIA}}example.png" alt="example"
+         width="380px"/>
 </p>
-
-<p><i>( Explain input and output values )</i></p>
 <p>
-    <strong>Input: </strong> Two arguments. Both are int
+    For example on the image you can see the full labyrinth and that will be visible for player.
+    And your function will receive:
+        </p>
+<pre>
+("???XXX",
+ "???...",
+ "???X.X",
+ "XXXX.X",
+ "X...PX",
+ "XXXX.X",
+ "???X.X",
+ "???...",
+ "???X.X",
+ "???X.X",
+ "???..X",
+ "???XXX")
+</pre>
+
+
+<p>
+    <strong>Input: </strong> A visible part as a tuple of strings.
 </p>
 
 <p>
-    <strong>Output: </strong> Int. 
+    <strong>Output: </strong> An action or several actions as a string.
 </p>
-
 
 
 <div class="for_info_only">
-    <p><i>( Put some usage examples )</i></p>
+
     <p>
         <strong>Example:</strong>
     </p>
     <pre class="brush: python">
-checkio(3, 2) == 5
-checkio(5, 7) == 12
     </pre>
 </div>
 
 <p class="for_info_only">
     <strong>How it is used: </strong>
-    <i>(Here you can explain how it can be used in development and what is usage of this.)</i>
 </p>
 
 <p>

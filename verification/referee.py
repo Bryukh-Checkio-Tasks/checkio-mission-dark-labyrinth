@@ -147,6 +147,7 @@ api.add_listener(
         },
         initial_referee=initial,
         process_referee=process,
-        is_win_referee=is_win
+        is_win_referee=is_win,
+        function_name="find_path"
     ).on_ready)
 

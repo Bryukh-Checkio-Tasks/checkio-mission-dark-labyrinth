@@ -40,10 +40,14 @@ requirejs(['ext_editor_1', 'jquery_190', 'raphael_210', 'snap.svg_030'],
             }
 
             //YOUR FUNCTION NAME
-            var fname = 'checkio';
+            var fname = 'find_path';
 
-            var checkioInput = data.in;
-            var checkioInputStr = fname + '(' + JSON.stringify(checkioInput) + ')';
+            var checkioInput = data.in || [
+                "XXXX",
+                "XPEX",
+                "XXXX"
+            ];
+            var checkioInputStr = fname + '(' + JSON.stringify(checkioInput).replace("[", "(").replace("]", ")") + ')';
 
             var failError = function (dError) {
                 $content.find('.call').html(checkioInputStr);
@@ -69,18 +73,24 @@ requirejs(['ext_editor_1', 'jquery_190', 'raphael_210', 'snap.svg_030'],
             $content.find('.call').html(checkioInputStr);
             $content.find('.output').html('Working...');
 
+            var svg = new SVG($content.find(".explanation")[0]);
+
 
             if (data.ext) {
-                var rightResult = data.ext["answer"];
                 var userResult = data.out;
                 var result = data.ext["result"];
                 var result_addon = data.ext["result_addon"];
+                var maze = data.ext["maze"];
+                var player = data.ext["old_player"];
+                var shifts = data.ext["shifts"];
+
+                svg.drawMaze(maze, checkioInput, player, shifts);
 
                 //if you need additional info from tests (if exists)
                 var explanation = data.ext["explanation"];
                 $content.find('.output').html('&nbsp;Your result:&nbsp;' + JSON.stringify(userResult));
                 if (!result) {
-                    $content.find('.answer').html('Right result:&nbsp;' + JSON.stringify(rightResult));
+                    $content.find('.answer').html(result_addon);
                     $content.find('.answer').addClass('error');
                     $content.find('.output').addClass('error');
                     $content.find('.call').addClass('error');
@@ -121,22 +131,74 @@ requirejs(['ext_editor_1', 'jquery_190', 'raphael_210', 'snap.svg_030'],
 //            });
 //        });
 
-        var colorOrange4 = "#F0801A";
-        var colorOrange3 = "#FA8F00";
-        var colorOrange2 = "#FAA600";
-        var colorOrange1 = "#FABA00";
+        function SVG(dom) {
 
-        var colorBlue4 = "#294270";
-        var colorBlue3 = "#006CA9";
-        var colorBlue2 = "#65A1CF";
-        var colorBlue1 = "#8FC7ED";
+            var colorOrange4 = "#F0801A";
+            var colorOrange3 = "#FA8F00";
+            var colorOrange2 = "#FAA600";
+            var colorOrange1 = "#FABA00";
 
-        var colorGrey4 = "#737370";
-        var colorGrey3 = "#9D9E9E";
-        var colorGrey2 = "#C5C6C6";
-        var colorGrey1 = "#EBEDED";
+            var colorBlue4 = "#294270";
+            var colorBlue3 = "#006CA9";
+            var colorBlue2 = "#65A1CF";
+            var colorBlue1 = "#8FC7ED";
 
-        var colorWhite = "#FFFFFF";
+            var colorGrey4 = "#737370";
+            var colorGrey3 = "#9D9E9E";
+            var colorGrey2 = "#C5C6C6";
+            var colorGrey1 = "#EBEDED";
+
+            var colorWhite = "#FFFFFF";
+
+            var paper;
+
+            var player;
+
+            var pad = 10;
+
+            var cell = 30;
+
+            var aCell = {"stroke": colorBlue4, "stroke-width": 2, "fill": colorGrey1};
+            var aFullExit = {"stroke": colorBlue4, "font-family": "Roboto, Arial, sans", "font-size": cell};
+            var aEmptyExit = {"stroke": colorBlue2, "font-family": "Roboto, Arial, sans", "font-size": cell};
+            var aPlayer = {"stroke": colorBlue4, "fill": colorOrange4, "stroke-width": 2};
+
+            this.drawMaze = function (maze, visible, playerCoor, shifts) {
+                paper = Raphael(dom, pad * 2 + cell * maze[0].length, pad * 2 + cell * maze.length);
+                var rowEdges = [shifts[0], shifts[0] + visible.length];
+                var colEdges = [shifts[1], shifts[1] + visible[0].length];
+                for (var i = 0; i < maze.length; i++) {
+                    for (var j = 0; j < maze[0].length; j++) {
+                        var symb = maze[i][j];
+                        var r = paper.rect(pad + cell * j, pad + cell * i, cell, cell).attr(aCell);
+                        if (i > rowEdges[0] && i < rowEdges[1] && j > colEdges[0] && colEdges[1]) {
+                            if (symb == "W") {
+                                r.attr("fill", colorBlue4);
+                            }
+                            else {
+                                r.attr("fill", colorBlue1);
+                            }
+                            if (symb == "E") {
+                                paper.text(pad + cell * (j + 0.5), pad + cell * (i + 0.5), cell).attr(aFullExit);
+                            }
+                        }
+                        else {
+                            if (symb == "W") {
+                                r.attr("fill", colorGrey4);
+                            }
+                            if (symb == "E") {
+                                paper.text(pad + cell * (j + 0.5), pad + cell * (i + 0.5), cell).attr(aEmptyExit);
+                            }
+                        }
+                    }
+                }
+                paper.circle(
+                    pad + cell * (player[1] + 0.5), pad + cell * (player[0] + 0.5), cell / 3
+                ).attr(aPlayer);
+            };
+
+        }
+
         //Your Additional functions or objects inside scope
         //
         //

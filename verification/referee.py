@@ -55,13 +55,8 @@ def clear_zone(zone):
             count += 1
     return shift
 
-def get_visible(maze):
+def get_visible(maze, player):
     grid = [["?" for _ in range(len(row))] for row in maze]
-    player = (0, 0)
-    for i, row in enumerate(maze):
-        if PLAYER in row:
-            player = (i, row.index(PLAYER))
-            break
     grid[player[0]][player[1]] = PLAYER
     for direction, diff in DIRS.items():
         r, c = player
@@ -77,11 +72,12 @@ def get_visible(maze):
     row_shift = clear_zone(grid)
     grid = list(zip(*grid))
     col_shift = clear_zone(grid)
+
     return ["".join(trow) for trow in zip(*grid)], row_shift, col_shift
 
 
 def initial(data):
-    grid, row, col = get_visible(data["maze"])
+    grid, row, col = get_visible(data["maze"], data["player"])
     return {"input": grid, "player": data["player"], "old_player": data["player"],
             "maze": data["maze"], "shifts": [row, col], "step": 0}
 
@@ -122,7 +118,7 @@ def process(data, user_result):
         else:
             player = r, c
             step += 1
-    grid, row_shift, col_shift = get_visible(maze)
+    grid, row_shift, col_shift = get_visible(maze, player)
     data.update({
         "result": False,
         "result_addon": "Next iteration",

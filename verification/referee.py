@@ -28,22 +28,129 @@ checkio.referee.cover_codes
 
 from checkio.signals import ON_CONNECT
 from checkio import api
-from checkio.referees.io import CheckiOReferee
+from checkio.referees.multicall import CheckiORefereeMulti
 from checkio.referees import cover_codes
 from checkio.referees import checkers
 
 from tests import TESTS
 
+DIRS = {"N": (-1, 0), "S": (1, 0), "W": (0, -1), "E": (0, 1)}
+
+PLAYER = "P"
+WALL = "X"
+UNKNOWN = "?"
+EXIT = "E"
+EMPTY = "."
+MAX_STEP = 200
+
+def clear_zone(zone):
+    count = 0
+    shift = 0
+    while count < len(zone):
+        if all(el == UNKNOWN for el in zone[count]):
+            zone.pop(count)
+            if not count:
+                shift += 1
+        else:
+            count += 1
+    return shift
+
+def get_visible(maze):
+    grid = [["?" for _ in range(len(row))] for row in maze]
+    player = (0, 0)
+    for i, row in enumerate(maze):
+        if PLAYER in row:
+            player = (i, row.index(PLAYER))
+            break
+    grid[player[0]][player[1]] = PLAYER
+    for direction, diff in DIRS.items():
+        r, c = player
+        while maze[r][c] != WALL:
+            r, c = r + diff[0], c + diff[1]
+            grid[r][c] = maze[r][c]
+            if direction in "NS":
+                grid[r + DIRS["W"][0]][c + DIRS["W"][1]] = maze[r + DIRS["W"][0]][c + DIRS["W"][1]]
+                grid[r + DIRS["E"][0]][c + DIRS["E"][1]] = maze[r + DIRS["E"][0]][c + DIRS["E"][1]]
+            else:
+                grid[r + DIRS["S"][0]][c + DIRS["S"][1]] = maze[r + DIRS["S"][0]][c + DIRS["S"][1]]
+                grid[r + DIRS["N"][0]][c + DIRS["N"][1]] = maze[r + DIRS["N"][0]][c + DIRS["N"][1]]
+    row_shift = clear_zone(grid)
+    grid = list(zip(*grid))
+    col_shift = clear_zone(grid)
+    return ["".join(trow) for trow in zip(*grid)], row_shift, col_shift
+
+
+def initial(data):
+    grid, row, col = get_visible(data["maze"])
+    return {"input": grid, "player": data["player"], "old_player": data["player"],
+            "maze": data["maze"], "shifts": [row, col], "step": 0}
+
+
+def process(data, user_result):
+    maze = data["maze"]
+    player = data["player"]
+    data["old_player"] = player
+    step = data["step"]
+    if not isinstance(user_result, str) or any(ch not in DIRS.keys() for ch in user_result):
+        data.update({
+            "result": False,
+            "result_addon": "The function should return a string with directions."
+        })
+        return data
+
+    for act in user_result:
+        if step > MAX_STEP:
+            data.update({
+                "result": False,
+                "result_addon": "You are tired and your flashlight is off. Bye bye."
+            })
+            return data
+        r, c = player[0] + DIRS[act][0], player[1] + DIRS[act][1]
+        if maze[r][c] == WALL:
+            data.update({
+                "result": False,
+                "result_addon": "BAM! You in the wall at {}, {}.".format(r, c)
+            })
+            return data
+        elif maze[r][c] == EXIT:
+            data.update({
+                "result": True,
+                "result_addon": "GRATZ!",
+                "is_win": True
+            })
+            return data
+        else:
+            player = r, c
+            step += 1
+    grid, row_shift, col_shift = get_visible(maze)
+    data.update({
+        "result": False,
+        "result_addon": "Next iteration",
+        "player": player,
+        "input": grid,
+        "shifts": [row_shift, col_shift],
+
+    })
+    return data
+
+
+def is_win(data):
+    return data.get("is_win", False)
+
+cover = """def cover(f, data):
+    return tuple(data)
+"""
+
 api.add_listener(
     ON_CONNECT,
-    CheckiOReferee(
+    CheckiORefereeMulti(
         tests=TESTS,
         cover_code={
-            'python-27': cover_codes.unwrap_args,  # or None
-            'python-3': cover_codes.unwrap_args
+            'python-27': cover,  # or None
+            'python-3': cover
         },
-        # checker=None,  # checkers.float.comparison(2)
-        # add_allowed_modules=[],
-        # add_close_builtins=[],
-        # remove_allowed_modules=[]
+        initial_referee=initial,
+        process_referee=process,
+        is_win_referee=is_win
     ).on_ready)
+

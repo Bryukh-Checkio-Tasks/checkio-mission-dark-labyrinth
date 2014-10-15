@@ -82,7 +82,7 @@ requirejs(['ext_editor_1', 'jquery_190', 'raphael_210', 'snap.svg_030'],
                 var result_addon = data.ext["result_addon"];
                 var maze = data.ext["maze"];
                 var player = data.ext["old_player"];
-                var shifts = data.ext["shifts"];
+                var shifts = data.ext["old_shifts"];
 
                 svg.drawMaze(maze, checkioInput, player, shifts);
 
@@ -154,46 +154,54 @@ requirejs(['ext_editor_1', 'jquery_190', 'raphael_210', 'snap.svg_030'],
 
             var player;
 
+            var exit;
+
+            var grid;
+
             var pad = 10;
 
             var cell = 30;
 
             var aCell = {"stroke": colorBlue4, "stroke-width": 2, "fill": colorGrey1};
-            var aFullExit = {"stroke": colorBlue4, "font-family": "Roboto, Arial, sans", "font-size": cell};
-            var aEmptyExit = {"stroke": colorBlue2, "font-family": "Roboto, Arial, sans", "font-size": cell};
+            var aFullExit = {"stroke": colorBlue4, "fill": colorBlue4, "font-family": "Roboto, Arial, sans", "font-size": cell};
+            var aEmptyExit = {"stroke": colorBlue2, "fill": colorBlue2, "font-family": "Roboto, Arial, sans", "font-size": cell};
             var aPlayer = {"stroke": colorBlue4, "fill": colorOrange4, "stroke-width": 2};
 
             this.drawMaze = function (maze, visible, playerCoor, shifts) {
                 paper = Raphael(dom, pad * 2 + cell * maze[0].length, pad * 2 + cell * maze.length);
+                grid = paper.set();
                 var rowEdges = [shifts[0], shifts[0] + visible.length];
                 var colEdges = [shifts[1], shifts[1] + visible[0].length];
                 for (var i = 0; i < maze.length; i++) {
+                    var temp = paper.set();
                     for (var j = 0; j < maze[0].length; j++) {
                         var symb = maze[i][j];
                         var r = paper.rect(pad + cell * j, pad + cell * i, cell, cell).attr(aCell);
-                        if (i > rowEdges[0] && i < rowEdges[1] && j > colEdges[0] && colEdges[1]) {
-                            if (symb == "W") {
-                                r.attr("fill", colorBlue4);
-                            }
-                            else {
-                                r.attr("fill", colorBlue1);
-                            }
-                            if (symb == "E") {
-                                paper.text(pad + cell * (j + 0.5), pad + cell * (i + 0.5), cell).attr(aFullExit);
-                            }
+                        temp.push(r);
+                        if (symb == "X") {
+                            r.attr("fill", colorGrey3);
                         }
-                        else {
-                            if (symb == "W") {
-                                r.attr("fill", colorGrey4);
-                            }
-                            if (symb == "E") {
-                                paper.text(pad + cell * (j + 0.5), pad + cell * (i + 0.5), cell).attr(aEmptyExit);
-                            }
+                        if (symb == "E") {
+                            exit = paper.text(pad + cell * (j + 0.5), pad + cell * (i + 0.5), "E").attr(aEmptyExit);
+                        }
+                    }
+                    grid.push(temp);
+                }
+                for (i = 0; i < visible.length; i++) {
+                    for (j = 0; j < visible[0].length; j++) {
+                        if (visible[i][j] == "X") {
+                            grid[shifts[0] + i][shifts[1] + j].attr("fill", colorBlue4);
+                        }
+                        else if (visible[i][j] != "?") {
+                            grid[shifts[0] + i][shifts[1] + j].attr("fill", colorBlue1);
+                        }
+                        if (visible[i][j] == "E") {
+                            exit.attr(aFullExit);
                         }
                     }
                 }
-                paper.circle(
-                    pad + cell * (player[1] + 0.5), pad + cell * (player[0] + 0.5), cell / 3
+                player = paper.circle(
+                    pad + cell * (playerCoor[1] + 0.5), pad + cell * (playerCoor[0] + 0.5), cell / 3
                 ).attr(aPlayer);
             };
 

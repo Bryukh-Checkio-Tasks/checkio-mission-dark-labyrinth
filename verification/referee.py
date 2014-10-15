@@ -72,14 +72,13 @@ def get_visible(maze, player):
     row_shift = clear_zone(grid)
     grid = list(zip(*grid))
     col_shift = clear_zone(grid)
-
     return ["".join(trow) for trow in zip(*grid)], row_shift, col_shift
 
 
 def initial(data):
     grid, row, col = get_visible(data["maze"], data["player"])
     return {"input": grid, "player": data["player"], "old_player": data["player"],
-            "maze": data["maze"], "shifts": [row, col], "step": 0}
+            "maze": data["maze"], "old_shifts": [row, col], "shifts": [row, col], "step": 0}
 
 
 def process(data, user_result):
@@ -87,6 +86,7 @@ def process(data, user_result):
     player = data["player"]
     data["old_player"] = player
     step = data["step"]
+    data["old_shifts"] = data["shifts"]
     if not isinstance(user_result, str) or any(ch not in DIRS.keys() for ch in user_result):
         data.update({
             "result": False,
@@ -95,7 +95,7 @@ def process(data, user_result):
         return data
 
     for act in user_result:
-        if step > MAX_STEP:
+        if step >= MAX_STEP:
             data.update({
                 "result": False,
                 "result_addon": "You are tired and your flashlight is off. Bye bye."
@@ -118,14 +118,15 @@ def process(data, user_result):
         else:
             player = r, c
             step += 1
+
     grid, row_shift, col_shift = get_visible(maze, player)
     data.update({
-        "result": False,
+        "result": True,
         "result_addon": "Next iteration",
         "player": player,
         "input": grid,
         "shifts": [row_shift, col_shift],
-
+        "step": step
     })
     return data
 
@@ -134,7 +135,7 @@ def is_win(data):
     return data.get("is_win", False)
 
 cover = """def cover(f, data):
-    return tuple(data)
+    return f(tuple(data))
 """
 
 api.add_listener(

@@ -1,30 +1,28 @@
 <p>
-    Do you remember <a href="">Open Labyrinth</a>?
-    Now you inside the Dark Labyrinth and don't see the full map.
-    But you have flashlight and all passages in the Labyrinth are directed along South-North and
-    East-West lines. You don't know your position and where is the exit.
-    And hurry - you can not run forever.
+    Do you remember the classic mission <a href="">Open Labyrinth</a>?
+    Well, you once again find yourself inside a labyrinth, but the lights are out and you cannot see
+    the full map. You have flashlight and know that all passages in the Labyrinth are directed along
+    South-North and East-West lines. You don't yet know your position or the location of the exit.
+    You must hurry as you cannot run forever.
 </p>
 
 <p>
-    This is a "multicall" mission and your function will be called until you in maze and have moves.
-    For each iteration you see a part of the labyrinth in four directions. You can
-    see passages and where they have crossings and turns. And you will see the exit if it will be
-    in visible zone. Visible zone are represented as a grid as a tuple of strings,
-    where
-    <strong>
-        "X" is a wall, "." is a passage cell, "?" is unknown, "P" is player and "E" is the exit.
-    </strong>
-    Grid are represented as 2D rectangular array. The size is related to visible zone size.
+    This is a "multicall" mission and as such, your function will be called until you have solved
+    the maze or run out of moves. For each iteration you see a part of the labyrinth in four
+    directions (function input). You can see passages and where they have crossings and turns. If
+    it’s in your range of vision, you’ll see the exit too. The visible zones are represented as a
+    grid as a tuple of strings, where <strong>
+    "X" is a wall, "." is a passage cell, "?" is unknown, "P" is player and "E" is the exit.
+</strong> Grids are represented as 2D rectangular arrays. The size is related
+    to size of the visible zone.
 </p>
 <p>
     For each iteration your function should return one or several actions as a string with
-    directions.
-    Actions are described as directions: "N" - North, "S" - South, "W" - West and "E" - East.
-    So the string "NWS" describes a sequence of three moves.
-    Don't move in a wall (there are weird slime on the walls).
-    And you have ??? moves (not iterations).
-    You can use global variables between iterations.
+    directions. Actions are described as directions: "N" - North, "S" - South, "W" - West and "E" -
+    East. For example: the string "NWS" describes a sequence of three moves. The walls are coated in
+    a weird slime so you shouldn’t make a move that would have you walk into a wall. To make things
+    interesting, you are limited to 100 moves (not iterations). You can use global variables between
+    iterations.
 </p>
 
 
@@ -36,7 +34,7 @@
 <p>
     For example on the image you can see the full labyrinth and that will be visible for player.
     And your function will receive:
-        </p>
+</p>
 <pre>
 ("???XXX",
  "???...",
@@ -72,8 +70,8 @@
 
 <p class="for_info_only">
     <strong>How it is used: </strong>
-    This concept is pathfinding algorithm with search.
-    It can explore territory and make a map.
+    This concept is pathfinding algorithm with search. It can be used to explore territory and make
+    a map.
 </p>
 
 <p>

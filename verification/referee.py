@@ -135,7 +135,7 @@ def is_win(data):
     return data.get("is_win", False)
 
 cover = """def cover(f, data):
-    return f(tuple(data))
+    return f(tuple(str(row) for row in data))
 """
 
 api.add_listener(

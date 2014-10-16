@@ -41,7 +41,7 @@ WALL = "X"
 UNKNOWN = "?"
 EXIT = "E"
 EMPTY = "."
-MAX_STEP = 200
+MAX_STEP = 250
 
 def clear_zone(zone):
     count = 0

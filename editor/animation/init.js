@@ -86,6 +86,8 @@ requirejs(['ext_editor_1', 'jquery_190', 'raphael_210', 'snap.svg_030'],
 
                 svg.drawMaze(maze, checkioInput, player, shifts);
 
+                svg.moving(userResult);
+
                 //if you need additional info from tests (if exists)
                 var explanation = data.ext["explanation"];
                 $content.find('.output').html('&nbsp;Your result:&nbsp;' + JSON.stringify(userResult));
@@ -177,6 +179,7 @@ requirejs(['ext_editor_1', 'jquery_190', 'raphael_210', 'snap.svg_030'],
                     for (var j = 0; j < maze[0].length; j++) {
                         var symb = maze[i][j];
                         var r = paper.rect(pad + cell * j, pad + cell * i, cell, cell).attr(aCell);
+                        r.mark = symb;
                         temp.push(r);
                         if (symb == "X") {
                             r.attr("fill", colorGrey3);
@@ -203,7 +206,36 @@ requirejs(['ext_editor_1', 'jquery_190', 'raphael_210', 'snap.svg_030'],
                 player = paper.circle(
                     pad + cell * (playerCoor[1] + 0.5), pad + cell * (playerCoor[0] + 0.5), cell / 3
                 ).attr(aPlayer);
+                player.row = playerCoor[0];
+                player.col = playerCoor[1];
             };
+
+            var DIRS = {"N": [-1, 0], "S": [1, 0], "W": [0, -1], "E": [0, 1]};
+
+            this.moving = function (actions) {
+                if (typeof(actions) !== "string") {
+                    return false;
+                }
+                var i = 0;
+                var stepTime = 200;
+                var delay = 100;
+                (function move() {
+                    var act = actions[i];
+                    if (grid[player.row][player.col].mark !== ".") {
+                        return false;
+                    }
+                    if ("NSWE".indexOf(act) === -1) {
+                        return false
+                    }
+                    player.row = player.row + DIRS[act][0];
+                    player.col = player.col + DIRS[act][1];
+                    i++;
+                    setTimeout(function () {
+                        player.animate({"transform": "...T" + (DIRS[act][1] * cell) + "," + (DIRS[act][0] * cell)},
+                            stepTime, callback = move);
+                    }, delay);
+                })();
+            }
 
         }
 

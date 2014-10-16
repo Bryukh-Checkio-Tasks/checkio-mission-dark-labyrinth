@@ -13,7 +13,7 @@ if __name__ == '__main__':
     MAX_STEP = 250
 
     def clear_zone(zone):
-        return [row for row in zone if all(el == UNKNOWN for el in row)]
+        return [row for row in zone if not all(el == UNKNOWN for el in row)]
 
     def get_visible(maze, player):
         grid = [["?" for _ in range(len(row))] for row in maze]
